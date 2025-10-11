@@ -21,9 +21,9 @@ directoriesDict = {
     "Archives": archiveType,
 }
 
-userName = getenv("USER")
+homeDirectory = getenv("HOME")
 
-downloadPath = f"/Users/{userName}/Downloads/TESTING"
+downloadPath = f"{homeDirectory}/Downloads/TESTING"
 
 
 def main():
