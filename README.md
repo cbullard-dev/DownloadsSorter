@@ -11,6 +11,11 @@ A Python utility that automatically organizes files in your Downloads folder by 
 - **Safe File Operations**: Validates file moves before deleting originals
 - **Developer Mode**: Optional testing mode for safe development
 
+## ToDo List
+- [ ] Separate out the types into separate config file
+- [ ] Add a way to update the config file from the command call
+- [ ] Add flags to allow for dry-run
+
 ## Requirements
 
 - Python 3.6 or higher
