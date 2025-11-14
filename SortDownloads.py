@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 from os import path, getenv, listdir
 import shutil
@@ -17,18 +19,26 @@ diskImageTypes = ["iso"]
 subtitleType = ["srt"]
 archiveType = ["zip", "tar", "gz"]
 windowsTypes = ["exe", "msi"]
+ebookTypes = ["mobi","epub"]
+calendarTypes = ["ics"]
+drawingTypes = ["excalidraw"]
 
 directoriesDict = {
-    "Documents": documentTypes,
-    "Text_Files": flatDocumentTypes,
-    "Software": softwareTypes,
-    "Disk_Images": diskImageTypes,
-    "Images": imageTypes,
-    "Videos": videoTypes,
-    "Subtitles": subtitleType,
-    "Archives": archiveType,
-    "Windows_Junk": windowsTypes,
+    "documents": documentTypes,
+    "text_files": flatDocumentTypes,
+    "software": softwareTypes,
+    "disk_images": diskImageTypes,
+    "images": imageTypes,
+    "videos": videoTypes,
+    "subtitles": subtitleType,
+    "archives": archiveType,
+    "windows_junk": windowsTypes,
+    "ebooks": ebookTypes,
+    "calendar_entries": calendarTypes,
+    "digital_drawings": drawingTypes
 }
+
+unlistedExtensions = []
 
 homeDirectory = getenv("HOME")
 
@@ -60,6 +70,9 @@ def main():
         # Check each file has successfully been created
         if validateNewFile(fileNewPath):
             os.remove(file)
+    duplicateFreeUnlistedExtensions = set(unlistedExtensions)
+    if len(duplicateFreeUnlistedExtensions) > 1:
+        print(f"The following were unsorted file extensions:\n{duplicateFreeUnlistedExtensions}")
     return 1
 
 
@@ -95,6 +108,7 @@ def checkExtension(file: str) -> str:
     for category, ext in directoriesDict.items():
         if extension in ext:
             return category
+    unlistedExtensions.append(extension)
     return f"File {name} with extension {extension} has no defined category!"
 
 
