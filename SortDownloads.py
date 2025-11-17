@@ -3,12 +3,15 @@
 import os
 from os import path, getenv, listdir
 import shutil
+import log
 
 SUCCESS = 0
 ERROR_GENERAL = 1
 ERROR_DIRECTORY_NOT_FOUND = 2
 
 DEVELOPER_BUILD = False
+
+IGNORED_FILES = [".DS_Store", ".localized"]
 
 documentTypes = ["pdf", "doc", "docx", "pages", "numbers"]
 flatDocumentTypes = ["txt", "csv", "json", "md"]
@@ -42,29 +45,29 @@ unlistedExtensions = []
 
 homeDirectory = getenv("HOME")
 
-downloadPath = f"{homeDirectory}/Downloads"
+downloadPath: str = f"{homeDirectory}/Downloads"
 
 if DEVELOPER_BUILD:
     downloadPath = path.join(downloadPath, "TESTING")
 
 
 def main():
-
     # Check if the directories exist, if not, create them
     for dir in directoriesDict:
         if not directoryExist(dir):
             createDirectory(dir)
     # For each file gather the data on the file and if it should be moved
     for file in listdir(downloadPath):
+        if file in IGNORED_FILES: continue
         result = checkExtension(file)
+        if result == "Is directory": continue
         if result in directoriesDict:
-            print(result)
+            log.debug(result)
             file = path.join(downloadPath, file)
             dest = path.join(downloadPath, result)
-            #     print(file,"\n",dest)
             fileNewPath = copyFiles(file, dest)
         else:
-            print(f"Was unable to copy {file} because {result}")
+            log.warn(f"Was unable to copy {file} because {result}")
             continue
 
         # Check each file has successfully been created
@@ -72,7 +75,7 @@ def main():
             os.remove(file)
     duplicateFreeUnlistedExtensions = set(unlistedExtensions)
     if len(duplicateFreeUnlistedExtensions) > 1:
-        print(f"The following were unsorted file extensions:\n{duplicateFreeUnlistedExtensions}")
+        log.info(f"The following were unsorted file extensions:\n{duplicateFreeUnlistedExtensions}")
     return 1
 
 
@@ -83,13 +86,13 @@ def checkDestinationExists(destinationPath: str):
 def createDirectory(directoryName: str):
     newPath = path.join(downloadPath, directoryName)
     os.mkdir(newPath)
-    print(f"Created {directoryName} at path {newPath}")
+    log.info(f"Created {directoryName} at path {newPath}")
 
 
-def directoryExist(directory: dict) -> bool:
+def directoryExist(directory: str) -> bool:
     dirPath = path.join(downloadPath, directory)
     dirExists = checkDestinationExists(dirPath)
-    print(f"Does the directory '{directory}' exist: {dirExists}")
+    log.info(f"Does the directory '{directory}' exist: {dirExists}")
     return dirExists
 
 
@@ -103,7 +106,7 @@ def checkExtension(file: str) -> str:
         return "No file extension"
     else:
         name = path.splitext(file)[0]
-        print(name)
+        log.debug(name)
         extension = fileBreakdown[-1].lower()
     for category, ext in directoriesDict.items():
         if extension in ext:
