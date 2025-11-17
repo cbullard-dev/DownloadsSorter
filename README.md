@@ -14,7 +14,7 @@ A Python utility that automatically organizes files in your Downloads folder by 
 ## ToDo List
 - [ ] Separate out the types into separate config file
 - [ ] Add a way to update the config file from the command call
-- [ ] Add flags to allow for dry-run
+- [x] Add flags to allow for dry-run (COMPLETED ✅)
 
 ## Requirements
 
