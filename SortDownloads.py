@@ -2,6 +2,7 @@
 
 import os
 from os import path, getenv, listdir
+from sys import argv
 import shutil
 import log
 
@@ -51,7 +52,12 @@ if DEVELOPER_BUILD:
     downloadPath = path.join(downloadPath, "TESTING")
 
 
-def main():
+def main(args: list[str]) -> int:
+    dry_run = False
+    for arg in args:
+        if(arg=="-d" or arg=="--dry-run"):
+            log.info("Starting dry-run!")
+            dry_run = True
     # Check if the directories exist, if not, create them
     for dir in directoriesDict:
         if not directoryExist(dir):
@@ -62,28 +68,35 @@ def main():
         result = checkExtension(file)
         if result == "Is directory": continue
         if result in directoriesDict:
-            log.debug(result)
+            log.debug(f"The type result is {result}")
             file = path.join(downloadPath, file)
             dest = path.join(downloadPath, result)
-            fileNewPath = copyFiles(file, dest)
+            fileNewPath = ''
+            if not dry_run:
+                fileNewPath = copyFiles(file, dest)
         else:
             log.warn(f"Was unable to copy {file} because {result}")
             continue
 
         # Check each file has successfully been created
+        if dry_run: continue
         if validateNewFile(fileNewPath):
             os.remove(file)
     duplicateFreeUnlistedExtensions = set(unlistedExtensions)
     if len(duplicateFreeUnlistedExtensions) > 1:
         log.info(f"The following were unsorted file extensions:\n{duplicateFreeUnlistedExtensions}")
+    if dry_run:
+        log.info("Dry-run completed!")
+    else:
+        log.info("Execution completed!")
     return 1
 
 
-def checkDestinationExists(destinationPath: str):
+def checkDestinationExists(destinationPath: str) -> bool:
     return path.exists(destinationPath)
 
 
-def createDirectory(directoryName: str):
+def createDirectory(directoryName: str) -> None:
     newPath = path.join(downloadPath, directoryName)
     os.mkdir(newPath)
     log.info(f"Created {directoryName} at path {newPath}")
@@ -106,7 +119,7 @@ def checkExtension(file: str) -> str:
         return "No file extension"
     else:
         name = path.splitext(file)[0]
-        log.debug(name)
+        log.debug(f"The file name is {name}")
         extension = fileBreakdown[-1].lower()
     for category, ext in directoriesDict.items():
         if extension in ext:
@@ -130,4 +143,4 @@ def validateNewFile(newPath: str) -> bool:
 if __name__ == "__main__":
     import sys
 
-    sys.exit(main())
+    sys.exit(main(argv))
